@@ -305,8 +305,11 @@ sdqa_assert_geom_type <- function(x, expected) {
 #'
 #' @description
 #' Checks whether the datum of `x` matches `expected`. The comparison is
-#' case-insensitive. Use `sf::st_crs(x)$datum` to discover the datum string
-#' for a given object (e.g. `"WGS84"`, `"NAD83"`, `"ETRS89"`).
+#' case-insensitive. Datum names are extracted from the CRS WKT, so they match
+#' the base geographic CRS name (e.g. `"WGS 84"`, `"ETRS89"`, `"NAD83"`).
+#' To discover the datum name for a given object, run
+#' `sdqa_assert_datum(x, "")` and read the detected name from the error, or
+#' inspect `sf::st_crs(x)$Name` directly.
 #'
 #' @param x A spatial object. Supported classes: [`sf`][sf::sf],
 #'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
@@ -323,20 +326,20 @@ sdqa_assert_geom_type <- function(x, expected) {
 #' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
 #'
 #' sdqa_assert_datum(nc)
-#' sdqa_assert_datum(nc, "wgs84")
+#' sdqa_assert_datum(nc, "wgs 84")
 #'
 #' \dontrun{
-#' nc_nad83 <- st_transform(nc, 4269)
-#' sdqa_assert_datum(nc_nad83)
+#' nc_etrs89 <- st_transform(nc, 25830)
+#' sdqa_assert_datum(nc_etrs89)
 #' }
-sdqa_assert_datum <- function(x, expected = "WGS84") {
+sdqa_assert_datum <- function(x, expected = "WGS 84") {
 
   # 0. Capture the argument label for use in error messages
   arg <- rlang::as_label(rlang::ensym(x))
 
   # 1. Normalise to uppercase for case-insensitive comparison
   expected <- toupper(expected)
-  detected <- toupper(.crs_extract(x, arg)$datum)
+  detected <- toupper(.datum_name(.crs_extract(x, arg)))
 
   # 2. Error if the datum is not among the allowed values
   if (!detected %in% expected) {
