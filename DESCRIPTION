@@ -4,13 +4,28 @@ Title: Spatial Data Quality Assessment for R
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jane", "Doe",
-      email = "jane@example.com",
-      role = c("aut", "cre")
+      "Adrián", "Cidre González", 
+      email = "adrian.cidre@gmail.com", 
+      role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0002-3310-3052")
     )
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+Description: Provides data quality assessment functions for spatial objects.
+    Supports three spatial backends: sf (vector), terra (raster and vector),
+    and duckspatial (DuckDB-backed lazy vector data). All public functions
+    follow the sdqa_*() naming convention.
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
+Imports:
+    cli,
+    rlang,
+    sf,
+    terra
+Suggests:
+    duckspatial,
+    testthat (>= 3.0.0)
+Remotes:
+    Cidree/duckspatial
+Config/testthat/edition: 3
+RoxygenNote: 7.3.3
