@@ -248,3 +248,55 @@ sdqa_assert_ymin <- function(...) .assert_bbox_coord("ymin", ...)
 #' sdqa_assert_ymax(nc, nc_sub)
 #' }
 sdqa_assert_ymax <- function(...) .assert_bbox_coord("ymax", ...)
+
+#' Assert that a spatial object contains only the expected geometry type(s)
+#'
+#' @description
+#' Checks whether every geometry type found in `x` is within `expected`.
+#' The comparison is case-insensitive. Throws an error listing all unexpected
+#' types found.
+#'
+#' @param x A spatial object. Supported classes: [`sf`][sf::sf],
+#'   [`SpatVector`][terra::SpatVector], or `duckspatial_df`.
+#'   [`SpatRaster`][terra::SpatRaster] is not supported.
+#' @param expected A character vector of allowed geometry type names (e.g.
+#'   `"POLYGON"`, `c("POLYGON", "MULTIPOLYGON")`). Case-insensitive.
+#'
+#' @return Invisibly returns TRUE. Throws an error if any geometry type
+#'   found in `x` is not in `expected`.
+#'
+#' @export
+#'
+#' @examples
+#' library(sf)
+#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+#'
+#' sdqa_assert_geom_type(nc, "MULTIPOLYGON")
+#' sdqa_assert_geom_type(nc, c("polygon", "multipolygon"))
+#'
+#' \dontrun{
+#' sdqa_assert_geom_type(nc, "POLYGON")
+#' }
+sdqa_assert_geom_type <- function(x, expected) {
+
+  # 0. Capture the argument label for use in error messages
+  arg <- rlang::as_label(rlang::ensym(x))
+
+  # 1. Normalise expected to uppercase so the check is case-insensitive
+  expected <- toupper(expected)
+
+  # 2. Extract unique geometry types present in x (returned uppercase)
+  detected <- .geom_type_extract(x, arg)
+
+  # 3. Find types present in x that are not in expected
+  invalid <- setdiff(detected, expected)
+
+  if (length(invalid) > 0L) {
+    cli::cli_abort(c(
+      "{.arg {arg}} contains unexpected geometry type{?s}: {.val {invalid}}.",
+      "i" = "Allowed type{?s}: {.val {expected}}."
+    ))
+  }
+
+  invisible(TRUE)
+}

@@ -58,6 +58,25 @@
   invisible(TRUE)
 } # nocov end
 
+.geom_type_extract <- function(x, arg) { # nocov start
+  if (inherits(x, c("sf", "sfc"))) {
+    return(toupper(unique(as.character(sf::st_geometry_type(x)))))
+  }
+  if (inherits(x, "SpatVector")) {
+    # terra::geomtype() cannot distinguish POINT from MULTIPOINT etc.; convert
+    # to sf to obtain precise WKT type names.
+    return(toupper(unique(as.character(sf::st_geometry_type(sf::st_as_sf(x))))))
+  }
+  if (inherits(x, "duckspatial_df")) {
+    return(toupper(duckspatial::ddbs_geometry_type(x)))
+  }
+  cli::cli_abort(c(
+    "{.arg {arg}} has unsupported class {.cls {class(x)[1]}}.",
+    "i" = "Supported: {.cls sf}, {.cls SpatVector}, {.cls duckspatial_df}.",
+    "i" = "{.cls SpatRaster} has no vector geometry type."
+  ))
+} # nocov end
+
 .crs_extract <- function(x, arg) { # nocov start
   if (inherits(x, c("sf", "sfc"))) {
     return(sf::st_crs(x))
