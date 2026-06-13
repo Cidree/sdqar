@@ -163,43 +163,7 @@ sdqa_assert_crs <- function(...) {
 #' nc_sub <- nc[nc$NAME == "Ashe", ]
 #' sdqa_assert_xmin(nc, nc_sub)
 #' }
-sdqa_assert_xmin <- function(...) {
-
-  # 0. Capture argument labels before `...` is evaluated
-  nms  <- sapply(rlang::ensyms(...), rlang::as_label)
-  objs <- list(...)
-
-  # 1. Validate inputs
-  if (length(objs) < 2L) {
-    cli::cli_abort("At least two objects must be provided.")
-  }
-
-  # 2. Extract xmin from all objects via .bbox_extract()
-  vals    <- vapply(
-    seq_along(objs),
-    function(i) .bbox_extract(objs[[i]], nms[[i]])[["xmin"]],
-    numeric(1L)
-  )
-  val_ref <- vals[[1L]]
-
-  # 3. Find every object whose xmin differs from the reference (first object)
-  mismatch_idx <- which(vals[-1L] != val_ref) + 1L
-
-  # 4. Report all mismatches at once in a single error
-  if (length(mismatch_idx) > 0L) {
-    bullets <- vapply(mismatch_idx, function(i) {
-      paste0("{.arg ", nms[[i]], "}: xmin=", vals[[i]])
-    }, character(1L))
-    names(bullets) <- rep("x", length(bullets))
-
-    cli::cli_abort(c(
-      "Not all objects share the same xmin as {.arg {nms[[1L]]}} (xmin={val_ref}).",
-      bullets
-    ))
-  }
-
-  invisible(TRUE)
-}
+sdqa_assert_xmin <- function(...) .assert_bbox_coord("xmin", ...)
 
 #' Assert that spatial objects share the same xmax
 #'
@@ -227,43 +191,7 @@ sdqa_assert_xmin <- function(...) {
 #' nc_sub <- nc[nc$NAME == "Currituck", ]
 #' sdqa_assert_xmax(nc, nc_sub)
 #' }
-sdqa_assert_xmax <- function(...) {
-
-  # 0. Capture argument labels before `...` is evaluated
-  nms  <- sapply(rlang::ensyms(...), rlang::as_label)
-  objs <- list(...)
-
-  # 1. Validate inputs
-  if (length(objs) < 2L) {
-    cli::cli_abort("At least two objects must be provided.")
-  }
-
-  # 2. Extract xmax from all objects via .bbox_extract()
-  vals    <- vapply(
-    seq_along(objs),
-    function(i) .bbox_extract(objs[[i]], nms[[i]])[["xmax"]],
-    numeric(1L)
-  )
-  val_ref <- vals[[1L]]
-
-  # 3. Find every object whose xmax differs from the reference (first object)
-  mismatch_idx <- which(vals[-1L] != val_ref) + 1L
-
-  # 4. Report all mismatches at once in a single error
-  if (length(mismatch_idx) > 0L) {
-    bullets <- vapply(mismatch_idx, function(i) {
-      paste0("{.arg ", nms[[i]], "}: xmax=", vals[[i]])
-    }, character(1L))
-    names(bullets) <- rep("x", length(bullets))
-
-    cli::cli_abort(c(
-      "Not all objects share the same xmax as {.arg {nms[[1L]]}} (xmax={val_ref}).",
-      bullets
-    ))
-  }
-
-  invisible(TRUE)
-}
+sdqa_assert_xmax <- function(...) .assert_bbox_coord("xmax", ...)
 
 #' Assert that spatial objects share the same ymin
 #'
@@ -291,43 +219,7 @@ sdqa_assert_xmax <- function(...) {
 #' nc_sub <- nc[nc$NAME == "Ashe", ]
 #' sdqa_assert_ymin(nc, nc_sub)
 #' }
-sdqa_assert_ymin <- function(...) {
-
-  # 0. Capture argument labels before `...` is evaluated
-  nms  <- sapply(rlang::ensyms(...), rlang::as_label)
-  objs <- list(...)
-
-  # 1. Validate inputs
-  if (length(objs) < 2L) {
-    cli::cli_abort("At least two objects must be provided.")
-  }
-
-  # 2. Extract ymin from all objects via .bbox_extract()
-  vals    <- vapply(
-    seq_along(objs),
-    function(i) .bbox_extract(objs[[i]], nms[[i]])[["ymin"]],
-    numeric(1L)
-  )
-  val_ref <- vals[[1L]]
-
-  # 3. Find every object whose ymin differs from the reference (first object)
-  mismatch_idx <- which(vals[-1L] != val_ref) + 1L
-
-  # 4. Report all mismatches at once in a single error
-  if (length(mismatch_idx) > 0L) {
-    bullets <- vapply(mismatch_idx, function(i) {
-      paste0("{.arg ", nms[[i]], "}: ymin=", vals[[i]])
-    }, character(1L))
-    names(bullets) <- rep("x", length(bullets))
-
-    cli::cli_abort(c(
-      "Not all objects share the same ymin as {.arg {nms[[1L]]}} (ymin={val_ref}).",
-      bullets
-    ))
-  }
-
-  invisible(TRUE)
-}
+sdqa_assert_ymin <- function(...) .assert_bbox_coord("ymin", ...)
 
 #' Assert that spatial objects share the same ymax
 #'
@@ -355,40 +247,4 @@ sdqa_assert_ymin <- function(...) {
 #' nc_sub <- nc[nc$NAME == "Ashe", ]
 #' sdqa_assert_ymax(nc, nc_sub)
 #' }
-sdqa_assert_ymax <- function(...) {
-
-  # 0. Capture argument labels before `...` is evaluated
-  nms  <- sapply(rlang::ensyms(...), rlang::as_label)
-  objs <- list(...)
-
-  # 1. Validate inputs
-  if (length(objs) < 2L) {
-    cli::cli_abort("At least two objects must be provided.")
-  }
-
-  # 2. Extract ymax from all objects via .bbox_extract()
-  vals    <- vapply(
-    seq_along(objs),
-    function(i) .bbox_extract(objs[[i]], nms[[i]])[["ymax"]],
-    numeric(1L)
-  )
-  val_ref <- vals[[1L]]
-
-  # 3. Find every object whose ymax differs from the reference (first object)
-  mismatch_idx <- which(vals[-1L] != val_ref) + 1L
-
-  # 4. Report all mismatches at once in a single error
-  if (length(mismatch_idx) > 0L) {
-    bullets <- vapply(mismatch_idx, function(i) {
-      paste0("{.arg ", nms[[i]], "}: ymax=", vals[[i]])
-    }, character(1L))
-    names(bullets) <- rep("x", length(bullets))
-
-    cli::cli_abort(c(
-      "Not all objects share the same ymax as {.arg {nms[[1L]]}} (ymax={val_ref}).",
-      bullets
-    ))
-  }
-
-  invisible(TRUE)
-}
+sdqa_assert_ymax <- function(...) .assert_bbox_coord("ymax", ...)
