@@ -81,14 +81,16 @@
   wkt <- crs$wkt
   if (is.null(wkt) || is.na(wkt)) return(NA_character_)
 
-  # Projected CRS: geodetic base is named in BASEGEOGCRS["name"]
-  m <- regmatches(wkt, regexpr('BASEGEOGCRS\\["[^"]+"', wkt, perl = TRUE))
-  if (length(m) > 0L) return(sub('BASEGEOGCRS\\["', "", m))
+  # Use regexec() so the capture group extracts only the name inside the quotes,
+  # avoiding the trailing " that sub()-based stripping leaves behind.
 
-  # Geographic CRS: the datum name is the top-level GEOGCRS["name"] or
-  # GEOGRAPHICCRS["name"]. Also covers datum ensembles (e.g. ETRS89).
-  m <- regmatches(wkt, regexpr('GEOG(?:RAPHIC)?CRS\\["[^"]+"', wkt, perl = TRUE))
-  if (length(m) > 0L) return(sub('GEOG(?:RAPHIC)?CRS\\["', "", m, perl = TRUE))
+  # Projected CRS: geodetic base is named in BASEGEOGCRS["name"]
+  m <- regmatches(wkt, regexec('BASEGEOGCRS\\["([^"]+)"', wkt, perl = TRUE))[[1L]]
+  if (length(m) >= 2L) return(m[[2L]])
+
+  # Geographic CRS (incl. ensemble datums like ETRS89)
+  m <- regmatches(wkt, regexec('GEOG(?:RAPHIC)?CRS\\["([^"]+)"', wkt, perl = TRUE))[[1L]]
+  if (length(m) >= 2L) return(m[[2L]])
 
   NA_character_
 } # nocov end
