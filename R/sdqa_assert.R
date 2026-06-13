@@ -1,0 +1,138 @@
+#' Assert that spatial objects share the same bounding box
+#'
+#' @description
+#' Checks whether all objects passed via `...` share an identical bounding box.
+#' All objects are compared against the first one. Throws an error at the first
+#' mismatch found.
+#'
+#' @param ... Two or more spatial objects. Supported classes: [`sf`][sf::sf],
+#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
+#'   or `duckspatial_df`.
+#'
+#' @return Invisibly returns TRUE. Throws an error if any object
+#'   has a different bounding box from the first.
+#'
+#' @export
+#'
+#' @examples
+#' library(sf)
+#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+#' nc_sub <- nc[1:50, ]
+#'
+#' sdqa_assert_bbox(nc, nc)
+#'
+#' \dontrun{
+#' sdqa_assert_bbox(nc, nc_sub)
+#' }
+sdqa_assert_bbox <- function(...) {
+
+  # 0. Capture argument labels before `...` is evaluated
+  nms  <- sapply(rlang::ensyms(...), rlang::as_label)
+  objs <- list(...)
+
+  # 1. Validate inputs
+  if (length(objs) < 2L) {
+    cli::cli_abort("At least two objects must be provided.")
+  }
+
+  # 2. Extract bounding box from all objects
+  ## .bbox_extract() normalises all backends to a named numeric vector
+  ## c(xmin, ymin, xmax, ymax) so identical() comparison works uniformly.
+  bboxes   <- Map(.bbox_extract, objs, nms)
+  bbox_ref <- bboxes[[1L]]
+
+  # 3. Find every object whose bbox differs from the reference (first object)
+  mismatch_idx <- which(
+    vapply(bboxes[-1L], function(bb) !identical(bbox_ref, bb), logical(1L))
+  ) + 1L
+
+  # 4. Report all mismatches at once in a single error
+  if (length(mismatch_idx) > 0L) {
+    .fmt_bb <- function(bb) {
+      sprintf(
+        "xmin=%.6g, ymin=%.6g, xmax=%.6g, ymax=%.6g",
+        bb[["xmin"]], bb[["ymin"]], bb[["xmax"]], bb[["ymax"]]
+      )
+    }
+    ref_label <- .fmt_bb(bbox_ref)
+
+    bullets <- vapply(mismatch_idx, function(i) {
+      paste0("{.arg ", nms[[i]], "}: ", .fmt_bb(bboxes[[i]]))
+    }, character(1L))
+    names(bullets) <- rep("x", length(bullets))
+
+    cli::cli_abort(c(
+      "Not all objects share the same bounding box as {.arg {nms[[1L]]}} ({ref_label}).",
+      bullets
+    ))
+  }
+
+  invisible(TRUE)
+}
+
+#' Assert that spatial objects share the same CRS
+#'
+#' @description
+#' Checks whether all objects passed via `...` share an identical Coordinate
+#' Reference System (CRS). All objects are compared against the first one.
+#' Throws an error at the first mismatch found.
+#'
+#' @param ... Two or more spatial objects. Supported classes: [`sf`][sf::sf],
+#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
+#'   or `duckspatial_df`.
+#'
+#' @return Invisibly returns TRUE. Throws an error if any object
+#'   has a different CRS from the first.
+#'
+#' @export
+#'
+#' @examples
+#' library(sf)
+#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+#' nc_utm <- st_transform(nc, 32617)
+#'
+#' sdqa_assert_crs(nc, nc)
+#'
+#' \dontrun{
+#' sdqa_assert_crs(nc, nc_utm)
+#' sdqa_assert_crs(nc, nc, nc_utm)
+#' }
+sdqa_assert_crs <- function(...) {
+
+  # 0. Capture argument labels before `...` is evaluated. ensyms() records the
+  ## unevaluated expressions (e.g. "nc_utm"), which are used in error messages.
+  nms  <- sapply(rlang::ensyms(...), rlang::as_label)
+  objs <- list(...)
+
+  # 1. Validate inputs
+  if (length(objs) < 2L) {
+    cli::cli_abort("At least two objects must be provided.")
+  }
+
+  # 2. Extract CRS from all objects
+  ## .crs_extract() normalises all backends to an sf::crs object so that
+  ## comparison with != works uniformly across sf, terra, and duckspatial_df.
+  crss    <- Map(.crs_extract, objs, nms)
+  crs_ref <- crss[[1L]]
+
+  # 3. Find every object whose CRS differs from the reference (first object)
+  ## crss[-1L] drops the reference; +1L corrects the index back to the full list.
+  mismatch_idx <- which(
+    vapply(crss[-1L], function(crs) crs_ref != crs, logical(1L))
+  ) + 1L
+
+  # 4. Report all mismatches at once in a single error
+  if (length(mismatch_idx) > 0L) {
+    bullets <- vapply(mismatch_idx, function(i) {
+      paste0("{.arg ", nms[[i]], "}: ", crss[[i]]$Name)
+    }, character(1L))
+    names(bullets) <- rep("x", length(bullets))
+
+    cli::cli_abort(c(
+      "Not all objects share the same CRS as {.arg {nms[[1L]]}} ({crs_ref$Name}).",
+      bullets
+    ))
+  }
+
+  invisible(TRUE)
+}
