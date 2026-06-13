@@ -300,3 +300,99 @@ sdqa_assert_geom_type <- function(x, expected) {
 
   invisible(TRUE)
 }
+
+#' Assert that a spatial object uses the expected datum
+#'
+#' @description
+#' Checks whether the datum of `x` matches `expected`. The comparison is
+#' case-insensitive. Use `sf::st_crs(x)$datum` to discover the datum string
+#' for a given object (e.g. `"WGS84"`, `"NAD83"`, `"ETRS89"`).
+#'
+#' @param x A spatial object. Supported classes: [`sf`][sf::sf],
+#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
+#'   or `duckspatial_df`.
+#' @param expected A character vector of allowed datum names. Case-insensitive.
+#'
+#' @return Invisibly returns TRUE. Throws an error if the datum of `x` is not
+#'   in `expected`.
+#'
+#' @export
+#'
+#' @examples
+#' library(sf)
+#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+#'
+#' sdqa_assert_datum(nc)
+#' sdqa_assert_datum(nc, "wgs84")
+#'
+#' \dontrun{
+#' nc_nad83 <- st_transform(nc, 4269)
+#' sdqa_assert_datum(nc_nad83)
+#' }
+sdqa_assert_datum <- function(x, expected = "WGS84") {
+
+  # 0. Capture the argument label for use in error messages
+  arg <- rlang::as_label(rlang::ensym(x))
+
+  # 1. Normalise to uppercase for case-insensitive comparison
+  expected <- toupper(expected)
+  detected <- toupper(.crs_extract(x, arg)$datum)
+
+  # 2. Error if the datum is not among the allowed values
+  if (!detected %in% expected) {
+    cli::cli_abort(c(
+      "{.arg {arg}} has datum {.val {detected}}.",
+      "i" = "Allowed datum{?s}: {.val {expected}}."
+    ))
+  }
+
+  invisible(TRUE)
+}
+
+#' Assert that a spatial object uses the expected CRS units
+#'
+#' @description
+#' Checks whether the coordinate units of `x` match `expected`. The comparison
+#' is case-insensitive. Use `sf::st_crs(x)$units_gdal` to discover the unit
+#' string for a given object (e.g. `"degree"`, `"metre"`, `"foot"`).
+#'
+#' @param x A spatial object. Supported classes: [`sf`][sf::sf],
+#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
+#'   or `duckspatial_df`.
+#' @param expected A character vector of allowed unit names. Case-insensitive.
+#'
+#' @return Invisibly returns TRUE. Throws an error if the CRS units of `x` are
+#'   not in `expected`.
+#'
+#' @export
+#'
+#' @examples
+#' library(sf)
+#' nc     <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+#' nc_utm <- st_transform(nc, 32617)
+#'
+#' sdqa_assert_crs_units(nc)
+#' sdqa_assert_crs_units(nc_utm, "metre")
+#'
+#' \dontrun{
+#' sdqa_assert_crs_units(nc_utm)
+#' }
+sdqa_assert_crs_units <- function(x, expected = "degree") {
+
+  # 0. Capture the argument label for use in error messages
+  arg <- rlang::as_label(rlang::ensym(x))
+
+  # 1. Normalise to uppercase for case-insensitive comparison
+  expected <- toupper(expected)
+  detected <- toupper(.crs_extract(x, arg)$units_gdal)
+
+  # 2. Error if the units are not among the allowed values
+  if (!detected %in% expected) {
+    cli::cli_abort(c(
+      "{.arg {arg}} has CRS units {.val {detected}}.",
+      "i" = "Allowed unit{?s}: {.val {expected}}."
+    ))
+  }
+
+  invisible(TRUE)
+}
