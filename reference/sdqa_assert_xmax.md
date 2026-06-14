@@ -1,27 +1,35 @@
 # Assert that spatial objects share the same xmax
 
-Checks whether the eastern edge (xmax) of all objects passed via \`...\`
-is identical. All objects are compared against the first one. Throws an
-error at the first mismatch found.
+Checks whether the eastern edge (xmax) of the objects passed via \`...\`
+satisfies the comparison defined by \`op\` relative to the first object.
+With \`op = "=="\` (default), all objects are compared against the first
+and must share the same value. For any other operator, exactly two
+objects must be provided.
 
 ## Usage
 
 ``` r
-sdqa_assert_xmax(...)
+sdqa_assert_xmax(..., op = c("==", "<=", "<", ">=", ">"))
 ```
 
 ## Arguments
 
 - ...:
 
-  Two or more spatial objects. Supported classes: \[\`sf\`\]\[sf::sf\],
+  Two or more spatial objects (\`op = "=="\`), or exactly two objects
+  (any other \`op\`). Supported classes: \[\`sf\`\]\[sf::sf\],
   \[\`SpatRaster\`\]\[terra::SpatRaster\],
   \[\`SpatVector\`\]\[terra::SpatVector\], or \`duckspatial_df\`.
 
+- op:
+
+  character(1); comparison operator applied to the second object's
+  coordinate value relative to the first's. One of \`"=="\` (default),
+  \`"\<="\`, \`"\<"\`, \`"\>="\`, or \`"\>"\`.
+
 ## Value
 
-Invisibly returns TRUE. Throws an error if any object has a different
-xmax from the first.
+Invisibly returns TRUE. Throws an error if the comparison fails.
 
 ## Examples
 
@@ -34,5 +42,6 @@ sdqa_assert_xmax(nc, nc)
 if (FALSE) { # \dontrun{
 nc_sub <- nc[nc$NAME == "Currituck", ]
 sdqa_assert_xmax(nc, nc_sub)
+sdqa_assert_xmax(nc, nc_sub, op = "<=")
 } # }
 ```

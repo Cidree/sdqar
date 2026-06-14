@@ -135,6 +135,8 @@ Throw an error when geometry type or validity constraints are violated
   : Assert that all geometries in a spatial object are valid
 - [`sdqa_assert_geom_simple()`](https://cidree.github.io/sdqar/reference/sdqa_assert_geom_simple.md)
   : Assert that all geometries in a spatial object are simple
+- [`sdqa_assert_no_empty()`](https://cidree.github.io/sdqar/reference/sdqa_assert_no_empty.md)
+  : Assert that a spatial object contains no empty geometries
 
 ## Predicates
 
