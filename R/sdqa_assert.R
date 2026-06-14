@@ -386,8 +386,8 @@ sdqa_assert_crs_units <- function(x, expected = "degree") {
   arg <- rlang::as_label(rlang::ensym(x))
 
   # 1. Normalise to uppercase for case-insensitive comparison
-  expected <- toupper(expected)
-  detected <- toupper(.crs_extract(x, arg)$units_gdal)
+  expected <- tolower(expected)
+  detected <- tolower(.crs_extract(x, arg)$units_gdal)
 
   # 2. Error if the units are not among the allowed values
   if (!detected %in% expected) {

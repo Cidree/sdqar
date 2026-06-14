@@ -62,7 +62,7 @@ test_that("error names the argument", {
 })
 
 test_that("error includes reason string", {
-  expect_error(sdqa_assert_geom_valid(sf_invalid), "Self-intersection|Ring Self-intersection")
+  expect_error(sdqa_assert_geom_valid(sf_invalid), "Edge 0 crosses edge 2")
 })
 
 test_that("error includes row index", {
@@ -90,7 +90,7 @@ test_that("errors for SpatVector with invalid geometry", {
 test_that("error includes reason string for SpatVector", {
   skip_if_not_installed("terra")
   sv <- terra::vect(sf_invalid)
-  expect_error(sdqa_assert_geom_valid(sv), "Self-intersection|Ring Self-intersection")
+  expect_error(sdqa_assert_geom_valid(sv), "Edge 0 crosses edge 2")
 })
 
 # duckspatial -----------------------------------------------------------------
@@ -116,7 +116,7 @@ test_that("error includes reason string for duckspatial_df", {
   con <- duckspatial::ddbs_create_conn()
   on.exit(duckspatial::ddbs_stop_conn(con))
   ddf <- duckspatial::as_duckspatial_df(sf_invalid, con)
-  expect_error(sdqa_assert_geom_valid(ddf), "Self-intersection|Ring Self-intersection")
+  expect_error(sdqa_assert_geom_valid(ddf), "Edge 0 crosses edge 2")
 })
 
 # terra engine ----------------------------------------------------------------
@@ -188,3 +188,4 @@ test_that("engine = 'terra' errors for duckspatial_df with invalid geometry", {
   ddf <- duckspatial::as_duckspatial_df(sf_invalid, con)
   expect_error(sdqa_assert_geom_valid(ddf, engine = "terra"), "invalid geometr")
 })
+
