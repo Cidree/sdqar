@@ -26,12 +26,19 @@
   ))
 } # nocov end
 
-.assert_bbox_coord <- function(coord, ...) { # nocov start
+.assert_bbox_coord <- function(coord, ..., op = "==") { # nocov start
   nms  <- sapply(rlang::ensyms(...), rlang::as_label)
   objs <- list(...)
 
   if (length(objs) < 2L) {
     cli::cli_abort("At least two objects must be provided.")
+  }
+
+  if (op != "==" && length(objs) > 2L) {
+    cli::cli_abort(c(
+      "{.code op = \"{op}\"} requires exactly two objects.",
+      "i" = "Use {.code op = \"==\"} to compare more than two objects."
+    ))
   }
 
   vals    <- vapply(
@@ -41,7 +48,8 @@
   )
   val_ref <- vals[[1L]]
 
-  mismatch_idx <- which(vals[-1L] != val_ref) + 1L
+  op_fn        <- match.fun(op)
+  mismatch_idx <- which(!op_fn(vals[-1L], val_ref)) + 1L
 
   if (length(mismatch_idx) > 0L) {
     bullets <- vapply(mismatch_idx, function(i) {
@@ -49,10 +57,23 @@
     }, character(1L))
     names(bullets) <- rep("x", length(bullets))
 
-    cli::cli_abort(c(
-      "Not all objects share the same {coord} as {.arg {nms[[1L]]}} ({coord}={val_ref}).",
-      bullets
-    ))
+    if (op == "==") {
+      cli::cli_abort(c(
+        "Not all objects share the same {coord} as {.arg {nms[[1L]]}} ({coord}={val_ref}).",
+        bullets
+      ))
+    } else {
+      op_label <- c(
+        "<=" = "less than or equal to",
+        "<"  = "less than",
+        ">=" = "greater than or equal to",
+        ">"  = "greater than"
+      )[[op]]
+      cli::cli_abort(c(
+        "{.arg {nms[[2L]]}} {coord} ({vals[[2L]]}) is not {op_label} {.arg {nms[[1L]]}} {coord} ({val_ref}).",
+        bullets
+      ))
+    }
   }
 
   invisible(TRUE)

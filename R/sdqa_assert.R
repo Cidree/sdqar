@@ -5,9 +5,7 @@
 #' All objects are compared against the first one. Throws an error at the first
 #' mismatch found.
 #'
-#' @param ... Two or more spatial objects. Supported classes: [`sf`][sf::sf],
-#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
-#'   or `duckspatial_df`.
+#' @template dots_spatial
 #'
 #' @return Invisibly returns TRUE. Throws an error if any object
 #'   has a different bounding box from the first.
@@ -77,9 +75,7 @@ sdqa_assert_bbox <- function(...) {
 #' Reference System (CRS). All objects are compared against the first one.
 #' Throws an error at the first mismatch found.
 #'
-#' @param ... Two or more spatial objects. Supported classes: [`sf`][sf::sf],
-#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
-#'   or `duckspatial_df`.
+#' @template dots_spatial
 #'
 #' @return Invisibly returns TRUE. Throws an error if any object
 #'   has a different CRS from the first.
@@ -140,16 +136,16 @@ sdqa_assert_crs <- function(...) {
 #' Assert that spatial objects share the same xmin
 #'
 #' @description
-#' Checks whether the western edge (xmin) of all objects passed via `...` is
-#' identical. All objects are compared against the first one. Throws an error
-#' at the first mismatch found.
+#' Checks whether the western edge (xmin) of the objects passed via `...`
+#' satisfies the comparison defined by `op` relative to the first object.
+#' With `op = "=="` (default), all objects are compared against the first and
+#' must share the same value. For any other operator, exactly two objects must
+#' be provided.
 #'
-#' @param ... Two or more spatial objects. Supported classes: [`sf`][sf::sf],
-#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
-#'   or `duckspatial_df`.
+#' @template dots_spatial_op
+#' @template param_op
 #'
-#' @return Invisibly returns TRUE. Throws an error if any object has a
-#'   different xmin from the first.
+#' @return Invisibly returns TRUE. Throws an error if the comparison fails.
 #'
 #' @export
 #'
@@ -162,22 +158,26 @@ sdqa_assert_crs <- function(...) {
 #' \dontrun{
 #' nc_sub <- nc[nc$NAME == "Ashe", ]
 #' sdqa_assert_xmin(nc, nc_sub)
+#' sdqa_assert_xmin(nc, nc_sub, op = "<=")
 #' }
-sdqa_assert_xmin <- function(...) .assert_bbox_coord("xmin", ...)
+sdqa_assert_xmin <- function(..., op = c("==", "<=", "<", ">=", ">")) {
+  op <- match.arg(op)
+  .assert_bbox_coord("xmin", ..., op = op)
+}
 
 #' Assert that spatial objects share the same xmax
 #'
 #' @description
-#' Checks whether the eastern edge (xmax) of all objects passed via `...` is
-#' identical. All objects are compared against the first one. Throws an error
-#' at the first mismatch found.
+#' Checks whether the eastern edge (xmax) of the objects passed via `...`
+#' satisfies the comparison defined by `op` relative to the first object.
+#' With `op = "=="` (default), all objects are compared against the first and
+#' must share the same value. For any other operator, exactly two objects must
+#' be provided.
 #'
-#' @param ... Two or more spatial objects. Supported classes: [`sf`][sf::sf],
-#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
-#'   or `duckspatial_df`.
+#' @template dots_spatial_op
+#' @template param_op
 #'
-#' @return Invisibly returns TRUE. Throws an error if any object has a
-#'   different xmax from the first.
+#' @return Invisibly returns TRUE. Throws an error if the comparison fails.
 #'
 #' @export
 #'
@@ -190,22 +190,26 @@ sdqa_assert_xmin <- function(...) .assert_bbox_coord("xmin", ...)
 #' \dontrun{
 #' nc_sub <- nc[nc$NAME == "Currituck", ]
 #' sdqa_assert_xmax(nc, nc_sub)
+#' sdqa_assert_xmax(nc, nc_sub, op = "<=")
 #' }
-sdqa_assert_xmax <- function(...) .assert_bbox_coord("xmax", ...)
+sdqa_assert_xmax <- function(..., op = c("==", "<=", "<", ">=", ">")) {
+  op <- match.arg(op)
+  .assert_bbox_coord("xmax", ..., op = op)
+}
 
 #' Assert that spatial objects share the same ymin
 #'
 #' @description
-#' Checks whether the southern edge (ymin) of all objects passed via `...` is
-#' identical. All objects are compared against the first one. Throws an error
-#' at the first mismatch found.
+#' Checks whether the southern edge (ymin) of the objects passed via `...`
+#' satisfies the comparison defined by `op` relative to the first object.
+#' With `op = "=="` (default), all objects are compared against the first and
+#' must share the same value. For any other operator, exactly two objects must
+#' be provided.
 #'
-#' @param ... Two or more spatial objects. Supported classes: [`sf`][sf::sf],
-#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
-#'   or `duckspatial_df`.
+#' @template dots_spatial_op
+#' @template param_op
 #'
-#' @return Invisibly returns TRUE. Throws an error if any object has a
-#'   different ymin from the first.
+#' @return Invisibly returns TRUE. Throws an error if the comparison fails.
 #'
 #' @export
 #'
@@ -218,22 +222,26 @@ sdqa_assert_xmax <- function(...) .assert_bbox_coord("xmax", ...)
 #' \dontrun{
 #' nc_sub <- nc[nc$NAME == "Ashe", ]
 #' sdqa_assert_ymin(nc, nc_sub)
+#' sdqa_assert_ymin(nc, nc_sub, op = ">=")
 #' }
-sdqa_assert_ymin <- function(...) .assert_bbox_coord("ymin", ...)
+sdqa_assert_ymin <- function(..., op = c("==", "<=", "<", ">=", ">")) {
+  op <- match.arg(op)
+  .assert_bbox_coord("ymin", ..., op = op)
+}
 
 #' Assert that spatial objects share the same ymax
 #'
 #' @description
-#' Checks whether the northern edge (ymax) of all objects passed via `...` is
-#' identical. All objects are compared against the first one. Throws an error
-#' at the first mismatch found.
+#' Checks whether the northern edge (ymax) of the objects passed via `...`
+#' satisfies the comparison defined by `op` relative to the first object.
+#' With `op = "=="` (default), all objects are compared against the first and
+#' must share the same value. For any other operator, exactly two objects must
+#' be provided.
 #'
-#' @param ... Two or more spatial objects. Supported classes: [`sf`][sf::sf],
-#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
-#'   or `duckspatial_df`.
+#' @template dots_spatial_op
+#' @template param_op
 #'
-#' @return Invisibly returns TRUE. Throws an error if any object has a
-#'   different ymax from the first.
+#' @return Invisibly returns TRUE. Throws an error if the comparison fails.
 #'
 #' @export
 #'
@@ -246,8 +254,12 @@ sdqa_assert_ymin <- function(...) .assert_bbox_coord("ymin", ...)
 #' \dontrun{
 #' nc_sub <- nc[nc$NAME == "Ashe", ]
 #' sdqa_assert_ymax(nc, nc_sub)
+#' sdqa_assert_ymax(nc, nc_sub, op = ">=")
 #' }
-sdqa_assert_ymax <- function(...) .assert_bbox_coord("ymax", ...)
+sdqa_assert_ymax <- function(..., op = c("==", "<=", "<", ">=", ">")) {
+  op <- match.arg(op)
+  .assert_bbox_coord("ymax", ..., op = op)
+}
 
 #' Assert that a spatial object contains only the expected geometry type(s)
 #'
@@ -256,9 +268,7 @@ sdqa_assert_ymax <- function(...) .assert_bbox_coord("ymax", ...)
 #' The comparison is case-insensitive. Throws an error listing all unexpected
 #' types found.
 #'
-#' @param x A spatial object. Supported classes: [`sf`][sf::sf],
-#'   [`SpatVector`][terra::SpatVector], or `duckspatial_df`.
-#'   [`SpatRaster`][terra::SpatRaster] is not supported.
+#' @template param_x_no_raster
 #' @param expected A character vector of allowed geometry type names (e.g.
 #'   `"POLYGON"`, `c("POLYGON", "MULTIPOLYGON")`). Case-insensitive.
 #'
@@ -311,9 +321,7 @@ sdqa_assert_geom_type <- function(x, expected) {
 #' `sdqa_assert_datum(x, "")` and read the detected name from the error, or
 #' inspect `sf::st_crs(x)$Name` directly.
 #'
-#' @param x A spatial object. Supported classes: [`sf`][sf::sf],
-#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
-#'   or `duckspatial_df`.
+#' @template param_x
 #' @param expected A character vector of allowed datum names. Case-insensitive.
 #'
 #' @return Invisibly returns TRUE. Throws an error if the datum of `x` is not
@@ -359,9 +367,7 @@ sdqa_assert_datum <- function(x, expected = "WGS 84") {
 #' is case-insensitive. Use `sf::st_crs(x)$units_gdal` to discover the unit
 #' string for a given object (e.g. `"degree"`, `"metre"`, `"foot"`).
 #'
-#' @param x A spatial object. Supported classes: [`sf`][sf::sf],
-#'   [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
-#'   or `duckspatial_df`.
+#' @template param_x
 #' @param expected A character vector of allowed unit names. Case-insensitive.
 #'
 #' @return Invisibly returns TRUE. Throws an error if the CRS units of `x` are
@@ -419,9 +425,7 @@ sdqa_assert_crs_units <- function(x, expected = "degree") {
 #'   [`SpatVector`][terra::SpatVector]. `duckspatial_df` is first collected
 #'   to [`sf`][sf::sf], then passed to [terra::vect()].
 #'
-#' @param x A spatial object. Supported classes: [`sf`][sf::sf],
-#'   [`SpatVector`][terra::SpatVector], or `duckspatial_df`.
-#'   [`SpatRaster`][terra::SpatRaster] is not supported.
+#' @template param_x_no_raster
 #' @param engine character; validation engine to use. Either `"sf"` (default,
 #'   uses [sf::st_is_valid()]) or `"terra"` (uses [terra::is.valid()]).
 #'
@@ -525,9 +529,7 @@ sdqa_assert_geom_valid <- function(x, engine = c("sf", "terra")) {
 #' self-intersect). Throws an error listing the row indices of any non-simple
 #' geometries.
 #'
-#' @param x A spatial object. Supported classes: [`sf`][sf::sf],
-#'   [`SpatVector`][terra::SpatVector], or `duckspatial_df`.
-#'   [`SpatRaster`][terra::SpatRaster] is not supported.
+#' @template param_x_no_raster
 #'
 #' @return Invisibly returns `TRUE`. Throws an error if any geometry is
 #'   non-simple.
@@ -579,6 +581,62 @@ sdqa_assert_geom_simple <- function(x) {
     cli::cli_abort(c(
       "{.arg {arg}} has {n} non-simple geometr{?y/ies}.",
       "x" = "Non-simple at row{?s}: {.val {invalid_idx}}."
+    ))
+  }
+
+  invisible(TRUE)
+}
+
+#' Assert that a spatial object contains no empty geometries
+#'
+#' @description
+#' Checks whether every geometry in `x` is non-empty. Throws an error listing
+#' the row indices of any empty geometries.
+#'
+#' @template param_x_no_raster
+#'
+#' @return Invisibly returns `TRUE`. Throws an error if any geometry is empty.
+#'
+#' @export
+#'
+#' @examples
+#' library(sf)
+#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+#'
+#' sdqa_assert_no_empty(nc)
+#'
+#' \dontrun{
+#' empty <- st_sf(geometry = st_sfc(st_polygon(), crs = 4326))
+#' sdqa_assert_no_empty(empty)
+#' }
+sdqa_assert_no_empty <- function(x) {
+
+  # 0. Capture the argument label for use in error messages
+  arg <- rlang::as_label(rlang::ensym(x))
+
+  # 1. Check for empty geometries using the appropriate backend function
+  if (inherits(x, "duckspatial_df")) {
+    is_empty <- duckspatial::ddbs_is_empty(x, mode = "sf")
+  } else if (inherits(x, "SpatVector")) {
+    is_empty <- terra::is.empty(x)
+  } else if (inherits(x, c("sf", "sfc"))) {
+    is_empty <- sf::st_is_empty(x)
+  } else {
+    cli::cli_abort(c(
+      "{.arg {arg}} has unsupported class {.cls {class(x)[1]}}.",
+      "i" = "Supported: {.cls sf}, {.cls SpatVector}, {.cls duckspatial_df}.",
+      "i" = "{.cls SpatRaster} has no vector geometry."
+    ))
+  }
+
+  # 2. Report all empty geometries at once in a single error
+  empty_idx <- which(is_empty)
+  n         <- length(empty_idx)
+
+  if (n > 0L) {
+    cli::cli_abort(c(
+      "{.arg {arg}} has {n} empty geometr{?y/ies}.",
+      "x" = "Empty at row{?s}: {.val {empty_idx}}."
     ))
   }
 

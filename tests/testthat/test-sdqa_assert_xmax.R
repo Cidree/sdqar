@@ -32,6 +32,52 @@ test_that("errors for unsupported class", {
   expect_error(sdqa_assert_xmax(df, sf_a), "unsupported class")
 })
 
+test_that("errors when op != '==' and more than two objects are provided", {
+  expect_error(sdqa_assert_xmax(sf_a, sf_b, sf_c, op = "<="), "requires exactly two")
+  expect_error(sdqa_assert_xmax(sf_a, sf_b, sf_c, op = "<"),  "requires exactly two")
+  expect_error(sdqa_assert_xmax(sf_a, sf_b, sf_c, op = ">="), "requires exactly two")
+  expect_error(sdqa_assert_xmax(sf_a, sf_b, sf_c, op = ">"),  "requires exactly two")
+})
+
+# op argument -----------------------------------------------------------------
+# sf_a: xmax=10, sf_b: xmax=20, sf_c: xmax=10
+
+test_that("op = '<=' passes when second xmax <= first xmax", {
+  expect_no_error(sdqa_assert_xmax(sf_a, sf_c, op = "<="))  # 10 <= 10
+  expect_no_error(sdqa_assert_xmax(sf_b, sf_a, op = "<="))  # 10 <= 20
+})
+
+test_that("op = '<=' errors when second xmax > first xmax", {
+  expect_error(sdqa_assert_xmax(sf_a, sf_b, op = "<="), "not less than or equal to")
+})
+
+test_that("op = '<' passes when second xmax < first xmax", {
+  expect_no_error(sdqa_assert_xmax(sf_b, sf_a, op = "<"))  # 10 < 20
+})
+
+test_that("op = '<' errors when second xmax >= first xmax", {
+  expect_error(sdqa_assert_xmax(sf_a, sf_b, op = "<"), "not less than")
+  expect_error(sdqa_assert_xmax(sf_a, sf_c, op = "<"), "not less than")  # 10 is not < 10
+})
+
+test_that("op = '>=' passes when second xmax >= first xmax", {
+  expect_no_error(sdqa_assert_xmax(sf_a, sf_b, op = ">="))  # 20 >= 10
+  expect_no_error(sdqa_assert_xmax(sf_a, sf_c, op = ">="))  # 10 >= 10
+})
+
+test_that("op = '>=' errors when second xmax < first xmax", {
+  expect_error(sdqa_assert_xmax(sf_b, sf_a, op = ">="), "not greater than or equal to")
+})
+
+test_that("op = '>' passes when second xmax > first xmax", {
+  expect_no_error(sdqa_assert_xmax(sf_a, sf_b, op = ">"))  # 20 > 10
+})
+
+test_that("op = '>' errors when second xmax <= first xmax", {
+  expect_error(sdqa_assert_xmax(sf_b, sf_a, op = ">"), "not greater than")
+  expect_error(sdqa_assert_xmax(sf_a, sf_c, op = ">"), "not greater than")  # 10 is not > 10
+})
+
 # sf --------------------------------------------------------------------------
 
 test_that("passes and returns TRUE invisibly when xmax values match", {

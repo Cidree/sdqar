@@ -4,21 +4,27 @@
 \alias{sdqa_assert_ymax}
 \title{Assert that spatial objects share the same ymax}
 \usage{
-sdqa_assert_ymax(...)
+sdqa_assert_ymax(..., op = c("==", "<=", "<", ">=", ">"))
 }
 \arguments{
-\item{...}{Two or more spatial objects. Supported classes: [`sf`][sf::sf],
+\item{...}{Two or more spatial objects (`op = "=="`), or exactly two objects
+(any other `op`). Supported classes: [`sf`][sf::sf],
 [`SpatRaster`][terra::SpatRaster], [`SpatVector`][terra::SpatVector],
 or `duckspatial_df`.}
+
+\item{op}{character(1); comparison operator applied to the second object's
+coordinate value relative to the first's. One of `"=="` (default),
+`"<="`, `"<"`, `">="`, or `">"`.}
 }
 \value{
-Invisibly returns TRUE. Throws an error if any object has a
-  different ymax from the first.
+Invisibly returns TRUE. Throws an error if the comparison fails.
 }
 \description{
-Checks whether the northern edge (ymax) of all objects passed via `...` is
-identical. All objects are compared against the first one. Throws an error
-at the first mismatch found.
+Checks whether the northern edge (ymax) of the objects passed via `...`
+satisfies the comparison defined by `op` relative to the first object.
+With `op = "=="` (default), all objects are compared against the first and
+must share the same value. For any other operator, exactly two objects must
+be provided.
 }
 \examples{
 library(sf)
@@ -29,5 +35,6 @@ sdqa_assert_ymax(nc, nc)
 \dontrun{
 nc_sub <- nc[nc$NAME == "Ashe", ]
 sdqa_assert_ymax(nc, nc_sub)
+sdqa_assert_ymax(nc, nc_sub, op = ">=")
 }
 }

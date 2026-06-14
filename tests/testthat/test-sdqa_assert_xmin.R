@@ -32,6 +32,29 @@ test_that("errors for unsupported class", {
   expect_error(sdqa_assert_xmin(df, sf_a), "unsupported class")
 })
 
+test_that("errors when op != '==' and more than two objects are provided", {
+  expect_error(sdqa_assert_xmin(sf_a, sf_b, sf_c, op = "<="), "requires exactly two")
+})
+
+# op argument -----------------------------------------------------------------
+# sf_a: xmin=0, sf_b: xmin=0, sf_c: xmin=5
+
+test_that("op = '<=' passes when second xmin <= first xmin", {
+  expect_no_error(sdqa_assert_xmin(sf_c, sf_a, op = "<="))  # 0 <= 5
+})
+
+test_that("op = '<=' errors when second xmin > first xmin", {
+  expect_error(sdqa_assert_xmin(sf_a, sf_c, op = "<="), "not less than or equal to")
+})
+
+test_that("op = '>=' passes when second xmin >= first xmin", {
+  expect_no_error(sdqa_assert_xmin(sf_a, sf_c, op = ">="))  # 5 >= 0
+})
+
+test_that("op = '>=' errors when second xmin < first xmin", {
+  expect_error(sdqa_assert_xmin(sf_c, sf_a, op = ">="), "not greater than or equal to")
+})
+
 # sf --------------------------------------------------------------------------
 
 test_that("passes and returns TRUE invisibly when xmin values match", {
