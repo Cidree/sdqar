@@ -165,6 +165,7 @@ reference:
   - sdqa_assert_geom_type
   - sdqa_assert_geom_valid
   - sdqa_assert_geom_simple
+  - sdqa_assert_no_empty
 - title: Predicates
   desc: Return TRUE/FALSE for CRS properties without throwing errors
   contents:
