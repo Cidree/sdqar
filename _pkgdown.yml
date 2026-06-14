@@ -1,0 +1,194 @@
+url: https://cidree.github.io/sdqar/
+template:
+  bootstrap: 5
+  bslib:
+    bg: '#F8FAFB'
+    fg: '#0D1B2A'
+    primary: '#0A7EA4'
+    secondary: '#FF6B35'
+    success: '#2CB67D'
+    info: '#5B8DB8'
+    warning: '#F4A261'
+    danger: '#E63946'
+    pkgdown-nav-height: 70px
+    base_font:
+      google:
+        family: DM Sans
+        wght: 300;400;500;600
+    heading_font:
+      google:
+        family: DM Sans
+        wght: 600;700
+    code_font:
+      google:
+        family: DM Mono
+        wght: 400;500
+    border-radius: 0.5rem
+    border-radius-sm: 0.3rem
+    border-radius-lg: 0.75rem
+    font-size-base: 1rem
+    line-height-base: 1.65
+  light-switch: yes
+  theme: a11y-light
+  theme-dark: a11y-dark
+  includes:
+    in_header: |
+      <style>
+      /* ── Navbar ─────────────────────────────────────────────────── */
+      .navbar {
+        background: #0D1B2A !important;
+        border-bottom: 2px solid #0A7EA4;
+        letter-spacing: 0.01em;
+      }
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: #ffffff !important;
+        letter-spacing: -0.02em;
+      }
+      .navbar-nav .nav-link {
+        color: rgba(255,255,255,0.80) !important;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: color 0.15s;
+      }
+      .navbar-nav .nav-link:hover,
+      .navbar-nav .nav-link.active {
+        color: #0A7EA4 !important;
+      }
+
+      .navbar .text-muted {
+        color: rgba(255,255,255,0.60) !important;
+      }
+
+      /* ── Vignette TOC ────────────────────────────────────────────── */
+      /* Shared structure */
+      #toc a,
+      #toc .nav-link,
+      .bd-toc a,
+      .bd-toc .nav-link,
+      .bs-docs-sidebar .nav > li > a {
+        font-size: 0.85rem;
+        border-left: 2px solid transparent;
+        padding-left: 0.75rem;
+        text-decoration: none;
+        transition: border-color 0.15s, color 0.15s;
+      }
+
+      /* Light mode (default) */
+      #toc,
+      #toc .nav,
+      .bd-toc,
+      .bd-toc .nav {
+        --bs-nav-link-color:       #3d5166;
+        --bs-nav-link-hover-color: #0A7EA4;
+      }
+      #toc a,
+      #toc .nav-link,
+      .bd-toc a,
+      .bd-toc .nav-link,
+      .bs-docs-sidebar .nav > li > a {
+        color: #3d5166 !important;
+      }
+      #toc a:hover,
+      #toc .nav-link:hover,
+      #toc .nav-link.active,
+      .bd-toc a:hover,
+      .bd-toc .nav-link.active,
+      .bs-docs-sidebar .nav > li > a:hover,
+      .bs-docs-sidebar .nav > li.active > a {
+        color: #0A7EA4 !important;
+        border-left-color: #0A7EA4;
+      }
+
+      /* Dark mode — pkgdown adds data-bs-theme="dark" on <html> */
+      [data-bs-theme="dark"] #toc,
+      [data-bs-theme="dark"] #toc .nav,
+      [data-bs-theme="dark"] .bd-toc,
+      [data-bs-theme="dark"] .bd-toc .nav {
+        --bs-nav-link-color:       #a8c0d6;
+        --bs-nav-link-hover-color: #3dd6f5;
+      }
+      [data-bs-theme="dark"] #toc a,
+      [data-bs-theme="dark"] #toc .nav-link,
+      [data-bs-theme="dark"] .bd-toc a,
+      [data-bs-theme="dark"] .bd-toc .nav-link,
+      [data-bs-theme="dark"] .bs-docs-sidebar .nav > li > a {
+        color: #a8c0d6 !important;
+      }
+      [data-bs-theme="dark"] #toc a:hover,
+      [data-bs-theme="dark"] #toc .nav-link:hover,
+      [data-bs-theme="dark"] #toc .nav-link.active,
+      [data-bs-theme="dark"] .bd-toc a:hover,
+      [data-bs-theme="dark"] .bd-toc .nav-link.active,
+      [data-bs-theme="dark"] .bs-docs-sidebar .nav > li > a:hover,
+      [data-bs-theme="dark"] .bs-docs-sidebar .nav > li.active > a {
+        color: #3dd6f5 !important;
+        border-left-color: #3dd6f5;
+      }
+
+      /* ── Tables ─────────────────────────────────────────────────── */
+      .table thead th {
+        background: #0D1B2A;
+        color: #ffffff;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        font-weight: 600;
+        border: none;
+      }
+      .table tbody tr:hover { background: #f0f7fb; }
+      .table { border-radius: 0.5rem; overflow: hidden; }
+
+      </style>
+authors:
+  Adrián Cidre González:
+    href: https://adrian-cidre.com/
+reference:
+- title: Assert — Coordinate Reference System
+  desc: Throw an error when CRS properties do not meet expectations
+  contents:
+  - sdqa_assert_crs
+  - sdqa_assert_datum
+  - sdqa_assert_crs_units
+- title: Assert — Bounding Box
+  desc: Throw an error when spatial extents do not match
+  contents:
+  - sdqa_assert_bbox
+  - sdqa_assert_xmin
+  - sdqa_assert_xmax
+  - sdqa_assert_ymin
+  - sdqa_assert_ymax
+- title: Assert — Geometry
+  desc: Throw an error when geometry type or validity constraints are violated
+  contents:
+  - sdqa_assert_geom_type
+  - sdqa_assert_geom_valid
+  - sdqa_assert_geom_simple
+- title: Predicates
+  desc: Return TRUE/FALSE for CRS properties without throwing errors
+  contents:
+  - sdqa_is_geographic
+  - sdqa_is_projected
+navbar:
+  title: sdqar
+  bg: dark
+  left:
+  - icon: fa-home
+    href: index.html
+    aria-label: Home
+  - text: Reference
+    href: reference/index.html
+  - text: News
+    href: news/index.html
+  structure:
+    right:
+    - search
+    - github
+    - lightswitch
+  components:
+    github:
+      icon: fa-github
+      href: https://github.com/Cidree/sdqar
+      aria-label: GitHub
+
