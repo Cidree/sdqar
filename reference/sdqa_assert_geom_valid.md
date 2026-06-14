@@ -1,0 +1,64 @@
+# Assert that all geometries in a spatial object are valid
+
+Checks whether every geometry in \`x\` is valid according to the OGC
+Simple Features specification. Throws an error listing the row indices
+and invalidity reasons for any invalid geometries.
+
+Two validation engines are available via the \`engine\` argument.
+\[sf::st_is_valid()\] and \[terra::is.valid()\] both rely on GEOS but
+may report different results for certain edge cases, so the choice of
+engine can matter.
+
+Inputs are coerced to the class expected by the chosen engine: \*
+\`engine = "sf"\` (default): all backends are converted to
+\[\`sf\`\]\[sf::sf\]. \* \`engine = "terra"\`: all backends are
+converted to \[\`SpatVector\`\]\[terra::SpatVector\]. \`duckspatial_df\`
+is first collected to \[\`sf\`\]\[sf::sf\], then passed to
+\[terra::vect()\].
+
+## Usage
+
+``` r
+sdqa_assert_geom_valid(x, engine = c("sf", "terra"))
+```
+
+## Arguments
+
+- x:
+
+  A spatial object. Supported classes: \[\`sf\`\]\[sf::sf\],
+  \[\`SpatVector\`\]\[terra::SpatVector\], or \`duckspatial_df\`.
+  \[\`SpatRaster\`\]\[terra::SpatRaster\] is not supported.
+
+- engine:
+
+  character; validation engine to use. Either \`"sf"\` (default, uses
+  \[sf::st_is_valid()\]) or \`"terra"\` (uses \[terra::is.valid()\]).
+
+## Value
+
+Invisibly returns \`TRUE\`. Throws an error if any geometry is invalid,
+with one bullet per offending row showing the reason.
+
+## Examples
+
+``` r
+library(sf)
+nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+
+sdqa_assert_geom_valid(nc)
+sdqa_assert_geom_valid(nc, engine = "terra")
+
+if (FALSE) { # \dontrun{
+invalid <- st_sf(
+  geometry = st_sfc(
+    st_polygon(list(matrix(
+      c(0, 0, 1, 1, 1, 0, 0, 1, 0, 0), ncol = 2, byrow = TRUE
+    ))),
+    crs = 4326
+  )
+)
+sdqa_assert_geom_valid(invalid)
+sdqa_assert_geom_valid(invalid, engine = "terra")
+} # }
+```

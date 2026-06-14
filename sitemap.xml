@@ -1,0 +1,22 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://cidree.github.io/sdqar/404.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/LICENSE.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/authors.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/index.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/news/index.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/index.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_assert_bbox.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_assert_crs.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_assert_crs_units.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_assert_datum.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_assert_geom_simple.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_assert_geom_type.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_assert_geom_valid.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_assert_xmax.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_assert_xmin.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_assert_ymax.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_assert_ymin.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_is_geographic.html</loc></url>
+<url><loc>https://cidree.github.io/sdqar/reference/sdqa_is_projected.html</loc></url>
+</urlset>
+
