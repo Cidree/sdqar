@@ -399,3 +399,188 @@ sdqa_assert_crs_units <- function(x, expected = "degree") {
 
   invisible(TRUE)
 }
+
+#' Assert that all geometries in a spatial object are valid
+#'
+#' @description
+#' Checks whether every geometry in `x` is valid according to the OGC Simple
+#' Features specification. Throws an error listing the row indices and
+#' invalidity reasons for any invalid geometries.
+#'
+#' Two validation engines are available via the `engine` argument.
+#' [sf::st_is_valid()] and [terra::is.valid()] both rely on GEOS but may
+#' report different results for certain edge cases, so the choice of engine
+#' can matter.
+#'
+#' Inputs are coerced to the class expected by the chosen engine:
+#' * `engine = "sf"` (default): all backends are converted to
+#'   [`sf`][sf::sf].
+#' * `engine = "terra"`: all backends are converted to
+#'   [`SpatVector`][terra::SpatVector]. `duckspatial_df` is first collected
+#'   to [`sf`][sf::sf], then passed to [terra::vect()].
+#'
+#' @param x A spatial object. Supported classes: [`sf`][sf::sf],
+#'   [`SpatVector`][terra::SpatVector], or `duckspatial_df`.
+#'   [`SpatRaster`][terra::SpatRaster] is not supported.
+#' @param engine character; validation engine to use. Either `"sf"` (default,
+#'   uses [sf::st_is_valid()]) or `"terra"` (uses [terra::is.valid()]).
+#'
+#' @return Invisibly returns `TRUE`. Throws an error if any geometry is
+#'   invalid, with one bullet per offending row showing the reason.
+#'
+#' @export
+#'
+#' @examples
+#' library(sf)
+#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+#'
+#' sdqa_assert_geom_valid(nc)
+#' sdqa_assert_geom_valid(nc, engine = "terra")
+#'
+#' \dontrun{
+#' invalid <- st_sf(
+#'   geometry = st_sfc(
+#'     st_polygon(list(matrix(
+#'       c(0, 0, 1, 1, 1, 0, 0, 1, 0, 0), ncol = 2, byrow = TRUE
+#'     ))),
+#'     crs = 4326
+#'   )
+#' )
+#' sdqa_assert_geom_valid(invalid)
+#' sdqa_assert_geom_valid(invalid, engine = "terra")
+#' }
+sdqa_assert_geom_valid <- function(x, engine = c("sf", "terra")) {
+
+  # 0. Capture the argument label and resolve engine choice
+  arg    <- rlang::as_label(rlang::ensym(x))
+  engine <- match.arg(engine)
+
+  # 1. Coerce to the target class and run the validity check
+  if (engine == "sf") {
+
+    ## 1.1. Convert to sf
+    if (inherits(x, "duckspatial_df")) {
+      x_sf <- duckspatial::ddbs_collect(x)
+    } else if (inherits(x, "SpatVector")) {
+      x_sf <- sf::st_as_sf(x)
+    } else if (inherits(x, c("sf", "sfc"))) {
+      x_sf <- x
+    } else {
+      cli::cli_abort(c(
+        "{.arg {arg}} has unsupported class {.cls {class(x)[1]}}.",
+        "i" = "Supported: {.cls sf}, {.cls SpatVector}, {.cls duckspatial_df}.",
+        "i" = "{.cls SpatRaster} has no vector geometry."
+      ))
+    }
+
+    reasons_all <- sf::st_is_valid(x_sf, reason = TRUE)
+    invalid_idx <- which(is.na(reasons_all) | reasons_all != "Valid Geometry")
+    reasons_chr <- ifelse(
+      is.na(reasons_all[invalid_idx]),
+      "NA (exception)",
+      reasons_all[invalid_idx]
+    )
+
+  } else {
+
+    ## 1.1. Convert to SpatVector; duckspatial_df must go through sf first
+    if (inherits(x, "duckspatial_df")) {
+      x_sv <- terra::vect(duckspatial::ddbs_collect(x))
+    } else if (inherits(x, c("sf", "sfc"))) {
+      x_sv <- terra::vect(x)
+    } else if (inherits(x, "SpatVector")) {
+      x_sv <- x
+    } else {
+      cli::cli_abort(c(
+        "{.arg {arg}} has unsupported class {.cls {class(x)[1]}}.",
+        "i" = "Supported: {.cls sf}, {.cls SpatVector}, {.cls duckspatial_df}.",
+        "i" = "{.cls SpatRaster} has no vector geometry."
+      ))
+    }
+
+    result      <- terra::is.valid(x_sv, messages = TRUE)
+    invalid_idx <- which(!result$valid | is.na(result$valid))
+    reasons_chr <- result$reason[invalid_idx]
+
+  }
+
+  # 2. Report all invalid geometries at once in a single error
+  n <- length(invalid_idx)
+  if (n > 0L) {
+    bullets        <- paste0("Row ", invalid_idx, ": ", reasons_chr)
+    names(bullets) <- rep("x", n)
+    cli::cli_abort(c(
+      "{.arg {arg}} has {n} invalid geometr{?y/ies}.",
+      bullets
+    ))
+  }
+
+  invisible(TRUE)
+}
+
+#' Assert that all geometries in a spatial object are simple
+#'
+#' @description
+#' Checks whether every geometry in `x` is simple (i.e. does not
+#' self-intersect). Throws an error listing the row indices of any non-simple
+#' geometries.
+#'
+#' @param x A spatial object. Supported classes: [`sf`][sf::sf],
+#'   [`SpatVector`][terra::SpatVector], or `duckspatial_df`.
+#'   [`SpatRaster`][terra::SpatRaster] is not supported.
+#'
+#' @return Invisibly returns `TRUE`. Throws an error if any geometry is
+#'   non-simple.
+#'
+#' @export
+#'
+#' @examples
+#' library(sf)
+#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+#'
+#' sdqa_assert_geom_simple(nc)
+#'
+#' \dontrun{
+#' non_simple <- st_sf(
+#'   geometry = st_sfc(
+#'     st_linestring(matrix(
+#'       c(0, 0, 1, 1, 0, 1, 1, 0), ncol = 2, byrow = TRUE
+#'     )),
+#'     crs = 4326
+#'   )
+#' )
+#' sdqa_assert_geom_simple(non_simple)
+#' }
+sdqa_assert_geom_simple <- function(x) {
+
+  # 0. Capture the argument label for use in error messages
+  arg <- rlang::as_label(rlang::ensym(x))
+
+  # 1. Check simplicity using the appropriate backend function
+  if (inherits(x, "duckspatial_df")) {
+    is_simple <- duckspatial::ddbs_is_simple(x, mode = "sf")
+  } else if (inherits(x, "SpatVector")) {
+    is_simple <- sf::st_is_simple(sf::st_as_sf(x))
+  } else if (inherits(x, c("sf", "sfc"))) {
+    is_simple <- sf::st_is_simple(x)
+  } else {
+    cli::cli_abort(c(
+      "{.arg {arg}} has unsupported class {.cls {class(x)[1]}}.",
+      "i" = "Supported: {.cls sf}, {.cls SpatVector}, {.cls duckspatial_df}.",
+      "i" = "{.cls SpatRaster} has no vector geometry."
+    ))
+  }
+
+  # 2. Report all non-simple geometries at once in a single error
+  invalid_idx <- which(!is_simple | is.na(is_simple))
+  n           <- length(invalid_idx)
+
+  if (n > 0L) {
+    cli::cli_abort(c(
+      "{.arg {arg}} has {n} non-simple geometr{?y/ies}.",
+      "x" = "Non-simple at row{?s}: {.val {invalid_idx}}."
+    ))
+  }
+
+  invisible(TRUE)
+}
